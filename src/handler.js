@@ -79,16 +79,74 @@ const addBookHandler = (request, h) => {
   return response;
 };
 
-const getAllBooksHandler = () => ({
-  status: 'success',
-  data: {
-    books: books.map((book) => ({
-      id: book.id,
-      name: book.name,
-      publisher: book.publisher,
-    })),
-  },
-});
+const getAllBooksHandler = (request, h) => {
+  const searchName = request.query.name;
+  const searchFinished = request.query.finished;
+  const searchReading = request.query.reading;
+
+  if (searchReading !== undefined) {
+    const response = h.response({
+      status: 'success',
+      data: {
+        books: books.filter((b) => Number(b.reading) === Number(searchReading))
+          .map((book) => ({
+            id: book.id,
+            name: book.name,
+            publisher: book.publisher,
+          })),
+      },
+    });
+    response.code(200);
+    return response;
+  }
+
+  if (searchFinished !== undefined) {
+    const response = h.response({
+      status: 'success',
+      data: {
+        books: books.filter((b) => Number(b.finished) === Number(searchFinished))
+          .map((book) => ({
+            id: book.id,
+            name: book.name,
+            publisher: book.publisher,
+          })),
+      },
+    });
+    response.code(200);
+    return response;
+  }
+
+  if (searchName !== undefined) {
+    const response = h.response({
+      status: 'success',
+      data: {
+        books: books
+          .map((book) => ({
+            id: book.id,
+            name: book.name,
+            publisher: book.publisher,
+          }))
+          .filter((b) => b.name.toLowerCase().includes(searchName.toLowerCase())),
+      },
+    });
+    response.code(200);
+    return response;
+  }
+
+  const response = h.response({
+    status: 'success',
+    data: {
+      books: books.map((book) => ({
+        id: book.id,
+        name: book.name,
+        publisher: book.publisher,
+      })),
+    },
+  });
+
+  response.code(200);
+  return response;
+};
 
 const getBookByIdHandler = (request, h) => {
   const { id } = request.params;
